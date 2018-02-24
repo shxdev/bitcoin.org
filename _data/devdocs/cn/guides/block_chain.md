@@ -4,97 +4,68 @@ http://opensource.org/licenses/MIT.
 {% endcomment %}
 {% assign filename="_data/devdocs/en/guides/block_chain.md" %}
 
-## Block Chain
+```## Block Chain```  
 ## 区块链
 {% include helpers/subhead-links.md %}
 
 {% autocrossref %}
 
-The block chain provides Bitcoin's public ledger, an ordered and timestamped record
-of transactions. This system is used to protect against double spending
-and modification of previous transaction records.
-区块链提供了比特币的公共账本，将交易按照顺序并加载时间戳记录其中。
+```The block chain provides Bitcoin's public ledger, an ordered and timestamped record of transactions. This system is used to protect against double spending and modification of previous transaction records.```  
+区块链提供了比特币的公共账本，将交易按照顺序并加载时间戳记录其中。这个系统用于保证防止双重支付(double spending)以及防止历史交易记录被篡改。
 
-Each full node in the Bitcoin network independently stores a block chain
-containing only blocks validated by that node. When several nodes all
-have the same blocks in their block chain, they are considered to be in
-[consensus][/en/glossary/consensus]{:#term-consensus}{:.term}. The validation rules these
-nodes follow to maintain consensus are called [consensus
-rules][/en/glossary/consensus-rules]{:#term-consensus-rules}{:.term}. This section describes many of
-the consensus rules used by Bitcoin Core.
+```Each full node in the Bitcoin network independently stores a block chain containing only blocks validated by that node. When several nodes all have the same blocks in their block chain, they are considered to be in [consensus][/en/glossary/consensus]{:#term-consensus}{:.term}. The validation rules these nodes follow to maintain consensus are called [consensus rules][/en/glossary/consensus-rules]{:#term-consensus-rules}{:.term}. This section describes many of the consensus rules used by Bitcoin Core.```  
+在比特币网络中的每一个完全节点(full node)独立存储一套经过其自身验证的完整的区块链。当几个节点全都有相同的区块链时，他们被认为具有[共识(consensus)](/en/glossary/consensus)。这些节点共同遵守用于维护共识的验证规则被城谁[共识规则(consensus rules)](/en/glossary/consensus-rules)。这一节将介绍几种Bitcoin Core使用的共识规则。
+
 
 {% endautocrossref %}
 
-### Block Chain Overview
+```### Block Chain Overview```  
+### 区块链概要
 {% include helpers/subhead-links.md %}
 
 {% autocrossref %}
 
-![Block Chain Overview](/img/dev/en-blockchain-overview.svg)
+```![Block Chain Overview](/img/dev/en-blockchain-overview.svg)```  
+![区块链概要](/img/dev/en-blockchain-overview.svg)
 
-The illustration above shows a simplified version of a block chain.
-A [block][/en/glossary/block]{:#term-block}{:.term} of one or more new transactions
-is collected into the transaction data part of a block.
-Copies of each transaction are hashed, and the hashes are then paired,
-hashed, paired again, and hashed again until a single hash remains, the
-[merkle root][/en/glossary/merkle-root]{:#term-merkle-root}{:.term} of a merkle tree.
+```The illustration above shows a simplified version of a block chain. A [block][/en/glossary/block]{:#term-block}{:.term} of one or more new transactions is collected into the transaction data part of a block. Copies of each transaction are hashed, and the hashes are then paired, hashed, paired again, and hashed again until a single hash remains, the [merkle root][/en/glossary/merkle-root]{:#term-merkle-root}{:.term} of a merkle tree.```  
+上面的图示展示了区块链的简化版本。 一条或多条新的交易(transactions)会被收集并存放到一个[块(block)](/en/glossary/block)的交易数据(transaction data)部分。这些交易数据会被计算其散列值(hash)，然后这些散列值会被两两配对，然后在计算配对后的散列值，然后再配对，直到剩下最后一个散列值，作为merkle tree的[merkle root](/en/glossary/merkle-root)值。
 
-The merkle root is stored in the block header. Each block also
-stores the hash of the previous block's header, chaining the blocks
-together. This ensures a transaction cannot be modified without
-modifying the block that records it and all following blocks.
+```The merkle root is stored in the block header. Each block also stores the hash of the previous block's header, chaining the blocks together. This ensures a transaction cannot be modified without modifying the block that records it and all following blocks.```  
+merkle root存储在块的头部。每一个块也存储了上一个块的头部数据的散列值，从而将这些块链接在一起。这确保了如果不修改一个块的所有后续块，那么这个块也无法被修改。
 
-Transactions are also chained together. Bitcoin wallet software gives
-the impression that satoshis are sent from and to wallets, but
-bitcoins really move from transaction to transaction. Each
-transaction spends the satoshis previously received in one or more earlier
-transactions, so the input of one transaction is the output of a
-previous transaction.
+```Transactions are also chained together. Bitcoin wallet software gives the impression that satoshis are sent from and to wallets, but bitcoins really move from transaction to transaction. Each transaction spends the satoshis previously received in one or more earlier transactions, so the input of one transaction is the output of a previous transaction.```  
+交易也是被链接在一起的。比特币钱包软件展示的效果看起来是将比特币从一个钱包发送到另一个钱包。但实际上比特币是从一个交易转移到了另一个交易。每个交易中花费的比特币是在上一个或更早前的交易中收取的,所以一个交易的输入是之前交易的输出。
 
-![Transaction Propagation](/img/dev/en-transaction-propagation.svg)
+```![Transaction Propagation](/img/dev/en-transaction-propagation.svg)```  
+![交易传播](/img/dev/en-transaction-propagation.svg)
 
-A single transaction can create multiple outputs, as would be
-the case when sending to multiple addresses, but each output of
-a particular transaction can only be used as an input once in the
-block chain. Any subsequent reference is a forbidden double
-spend---an attempt to spend the same satoshis twice.
+```A single transaction can create multiple outputs, as would be the case when sending to multiple addresses, but each output of a particular transaction can only be used as an input once in the block chain. Any subsequent reference is a forbidden double spend---an attempt to spend the same satoshis twice.```  
+一笔交易可以产生多个输出，就像这个例子中发送给多个地址，但在整个区块联众一个具体交易中的某一个输出只能被作为输入使用一次。任何之后的引用都被禁止，从而方式多重支付(double spend)---试图将同一笔比特币花费两次。
 
-Outputs are tied to [transaction identifiers (TXIDs)][/en/glossary/txid]{:#term-txid}{:.term}, which are the hashes
-of signed transactions.
 
-Because each output of a particular transaction can only be spent once,
-the outputs of all transactions included in the block chain can be categorized as either
-[Unspent Transaction Outputs (UTXOs)][/en/glossary/unspent-transaction-output]{:#term-utxo}{:.term} or spent transaction outputs. For a
-payment to be valid, it must only use UTXOs as inputs.
+```Outputs are tied to [transaction identifiers (TXIDs)][/en/glossary/txid]{:#term-txid}{:.term}, which are the hashes of signed transactions.```  
+输出与[交易标识(transaction identifiers (TXIDs))](/en/glossary/txid)挂钩，交易标识使用交易的散列值。
 
-Ignoring coinbase transactions (described later), if the value of a
-transaction's outputs exceed its inputs, the transaction will be
-rejected---but if the inputs exceed the value of the outputs, any
-difference in value may be claimed as a [transaction
-fee][/en/glossary/transaction-fee]{:#term-transaction-fee}{:.term} by the Bitcoin
-[miner][/en/glossary/mining]{:#term-miner}{:.term} who creates the block containing that
-transaction.
-For example, in the illustration above, each transaction spends 10,000 satoshis
-fewer than it receives from its combined inputs, effectively paying a 10,000
-satoshi transaction fee.
+```Because each output of a particular transaction can only be spent once, the outputs of all transactions included in the block chain can be categorized as either [Unspent Transaction Outputs (UTXOs)][/en/glossary/unspent-transaction-output]{:#term-utxo}{:.term} or spent transaction outputs. For a payment to be valid, it must only use UTXOs as inputs.```  
+由于每一个具体交易的每个输出只能被使用一次，区块链中的所有交易输出可以被分为两类[未花费的交易输出(Unspent Transaction Outputs (UTXOs))](/en/glossary/unspent-transaction-output)和已花费的交易输出。验证一笔支付时，他只能使用"未花费的交易输出(UTXOs)"作为输入。
+
+```Ignoring coinbase transactions (described later), if the value of a transaction's outputs exceed its inputs, the transaction will be rejected---but if the inputs exceed the value of the outputs, any difference in value may be claimed as a [transaction fee][/en/glossary/transaction-fee]{:#term-transaction-fee}{:.term} by the Bitcoin [miner][/en/glossary/mining]{:#term-miner}{:.term} who creates the block containing that transaction. For example, in the illustration above, each transaction spends 10,000 satoshis fewer than it receives from its combined inputs, effectively paying a 10,000 satoshi transaction fee.```  
+先忽略coinbase transactions(稍后解释),如果交易的输出总值超出了它的输入总值，这笔交易将被拒绝---但如果输入总值超出了输出总值,那么交易的差额会被声明为支付给比特币[矿工(miner)](/en/glossary/mining)（创建了这个块并打包交易的）的[交易费用(transaction fee)](/en/glossary/transaction-fee)。例如上面的图示，交易输出的总额比输入的综合少了10,000 satoshis，实际上用于支持了交易费用。
 
 {% endautocrossref %}
 
-### Proof Of Work
+```### Proof Of Work``` 
+### 工作量证明(Proof Of Work)
 {% include helpers/subhead-links.md %}
 
 {% autocrossref %}
 
-The block chain is collaboratively maintained by anonymous peers on the network, so
-Bitcoin requires that each block prove a significant amount of work was invested in
-its creation to ensure that untrustworthy peers who want to modify past blocks have
-to work harder than honest peers who only want to add new blocks to the
-block chain.
+```The block chain is collaboratively maintained by anonymous peers on the network, so Bitcoin requires that each block prove a significant amount of work was invested in its creation to ensure that untrustworthy peers who want to modify past blocks have to work harder than honest peers who only want to add new blocks to the block chain.```  
+区块链是由网络上许多匿名的平等的节点共同协作维护，所以比特币在创建一个块时需要证明在其上花费了大量的工作量，从而保证不可信的恶意节点试图修改过去的交易时，它必须比诚实的节点拥有更多的工作量。
 
-Chaining blocks together makes it impossible to modify transactions included
-in any block without modifying all following blocks. As a
-result, the cost to modify a particular block increases with every new block
-added to the block chain, magnifying the effect of the proof of work.
+```Chaining blocks together makes it impossible to modify transactions included in any block without modifying all following blocks. As a result, the cost to modify a particular block increases with every new block added to the block chain, magnifying the effect of the proof of work.``` 
+
 
 The [proof of work][/en/glossary/proof-of-work]{:#term-proof-of-work}{:.term} used in Bitcoin
 takes advantage of the apparently random nature of cryptographic hashes.
