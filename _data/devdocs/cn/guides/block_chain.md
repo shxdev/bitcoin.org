@@ -5,6 +5,7 @@ http://opensource.org/licenses/MIT.
 {% assign filename="_data/devdocs/en/guides/block_chain.md" %}
 
 ## Block Chain
+## 区块链
 {% include helpers/subhead-links.md %}
 
 {% autocrossref %}
@@ -12,6 +13,7 @@ http://opensource.org/licenses/MIT.
 The block chain provides Bitcoin's public ledger, an ordered and timestamped record
 of transactions. This system is used to protect against double spending
 and modification of previous transaction records.
+区块链提供了比特币的公共账本，将交易按照顺序并加载时间戳记录其中。
 
 Each full node in the Bitcoin network independently stores a block chain
 containing only blocks validated by that node. When several nodes all
