@@ -12,7 +12,7 @@ http://opensource.org/licenses/MIT.
 
 The block chain provides Bitcoin's public ledger, an ordered and timestamped record
 of transactions. This system is used to protect against double spending
-and modification of previous transaction records.
+and modification of previous transaction records.  
 区块链提供了比特币的公共账本，将交易按照顺序并加载时间戳记录其中。
 
 Each full node in the Bitcoin network independently stores a block chain
